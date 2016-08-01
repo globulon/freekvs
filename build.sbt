@@ -1,13 +1,13 @@
 
 name := """freekvs"""
 
-version := "3.0"
+version := "0.1-SNAPSHOT"
 
 lazy val root = project in file(".")
 
 scalaVersion := "2.11.7"
 
-scalacOptions ++= Seq("-feature", "-language:reflectiveCalls")
+scalacOptions ++= Seq("-feature")
 
 updateOptions := updateOptions.value.withCachedResolution(true)
 
