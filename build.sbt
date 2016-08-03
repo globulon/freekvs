@@ -18,7 +18,8 @@ publishArtifact in (Compile, packageDoc) := false
 
 libraryDependencies ++= Seq(
   "org.slf4j" % "jul-to-slf4j" % "1.7.12",
-  "org.scalaz" %% "scalaz-core" % "7.1.5"
+  "org.scalaz" %% "scalaz-core" % "7.1.5",
+  "com.github.etaty" %% "rediscala" % "1.6.0"
 )
 
 licenses += ("Unlicense", url("http://unlicense.org/"))

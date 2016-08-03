@@ -1,5 +1,7 @@
 package utilities.cache
 
+import redis.RedisCommands
+
 import scala.concurrent.Future.fromTry
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -35,6 +37,20 @@ trait InMemoryStore { self: LiftStore =>
     }
   }
 }
+
+trait RedisStore { self: LiftStore =>
+  type Key = String
+  type Persistent[T] = StateT[Future, RedisCommands, T]
+
+  def toRedis(implicit ctx: ExecutionContext) : (FreeStore ~> Persistent) = new (FreeStore ~> Persistent) {
+    override def apply[A](fa: FreeStore[A]): Persistent[A] = fa match {
+      case Get(k)    => StateT[Future, RedisCommands, Option[A]] { c => (c, c.get[A](k)) }
+      case Put(k, v) => StateT[Future, RedisCommands, A] { c => (c, c.set[A](k, v).map(_ => v)) }
+      case Del(k)    => StateT[Future, RedisCommands, A] { c => (c, c.del(k)) }
+    }
+  }
+}
+
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scalaz.Free
