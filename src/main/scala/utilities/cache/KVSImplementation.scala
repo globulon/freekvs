@@ -25,19 +25,16 @@ trait LiftKVS {
   type Request[V] = Free[({type L[A] = Coyoneda[Store, A]})#L, V]
 
   def get[V: StoreValue](k: K): Request[V] = Free.liftFC[Store, V](Get[K, V, StoreValue[V]](k))
-
   def put[V: StoreValue](k: K, v: V): Request[V] = Free.liftFC[Store, V](Put[K, V, StoreValue[V]](k, v))
 }
-
 
 trait KVSImplementation {
   self: LiftKVS =>
 
   type Implementation[T]
   type Interpreter = Store ~> Implementation
-  type ValueProjection[+V]
-  type ProjectValue[A] = StoreValue[A] => ValueProjection[A]
-
+  type ValueProjection[+V] 
+  type ProjectValue[A] = StoreValue ~> ValueProjection
 }
 
 trait InMemoryKVS extends KVSImplementation {
@@ -73,8 +70,8 @@ trait Storables {
   object StorePrimitive {
     def apply[A](): StorePrimitive[A] = new StorePrimitive[A] {}
   }
-  implicit val storeLong = StorePrimitive[Long]()
 
+  implicit val storeLong = StorePrimitive[Long]()
 }
 
 //object Main extends LiftKVS with InMemoryKVS with Storables {
