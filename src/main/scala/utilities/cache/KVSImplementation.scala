@@ -40,12 +40,12 @@ trait KVSImplementation {
 
 }
 
-trait InMemoryKVS {
+trait InMemoryKVS extends KVSImplementation {
   self: LiftKVS =>
-  type InMemory[T] = StateT[Future, Map[K, Any], T]
+  override type Implementation[T] = StateT[Future, Map[K, Any], T]
 
-  def toMemory(implicit ctx: ExecutionContext): (Store ~> InMemory) = new (Store ~> InMemory) {
-    override def apply[A](fa: Store[A]): InMemory[A] = fa match {
+  def toMemory(implicit ctx: ExecutionContext): Interpreter = new (Store ~> Implementation) {
+    override def apply[A](fa: Store[A]): Implementation[A] = fa match {
       case Get(k) => StateT[Future, Map[K, Any], A] { m => fromTry(Try((m, m(k).asInstanceOf[A]))) }
       case Put(k, v) => StateT[Future, Map[K, Any], A] { m => fromTry(Try((m + (k -> v), v))) }
     }
